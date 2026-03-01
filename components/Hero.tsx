@@ -1,9 +1,22 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import PhotorealBrushStrokes from './PhotorealBrushStrokes';
+import { useEffect, useState } from 'react';
 
 export default function Hero() {
+  const [videoVisible, setVideoVisible] = useState(true);
+
+  useEffect(() => {
+    // Respect reduced motion preference — skip video immediately
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) {
+      setVideoVisible(false);
+      return;
+    }
+    const timer = setTimeout(() => setVideoVisible(false), 5000);
+    return () => clearTimeout(timer);
+  }, []);
+
   const handleShopClick = () => {
     const target = document.querySelector('#shop');
     if (target) {
@@ -24,14 +37,43 @@ export default function Hero() {
       style={{ backgroundColor: '#F7F1E7' }}
       aria-label="Hero"
     >
-      {/* Background video layer */}
-      <div className="absolute inset-0 z-0" aria-hidden="true">
-        <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover" style={{ opacity: 0.3 }}>
+      {/* Full-bleed video background */}
+      <div
+        className="absolute inset-0 z-0"
+        aria-hidden="true"
+        style={{
+          opacity: videoVisible ? 1 : 0,
+          transition: 'opacity 2s ease-out',
+        }}
+      >
+        {/* poster is an optional fallback image displayed before the video loads */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          poster="/hero-poster.webp"
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ opacity: 0.85 }}
+        >
           <source src="/hero-video.mp4" type="video/mp4" />
         </video>
-      </div>
 
-      <PhotorealBrushStrokes />
+        {/* Warm colour overlay for text readability */}
+        <div
+          className="absolute inset-0"
+          style={{ backgroundColor: 'rgba(247,241,231,0.18)' }}
+        />
+
+        {/* Soft vignette to frame the centre text during video phase */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(ellipse 70% 70% at 50% 50%, rgba(247,241,231,0) 0%, rgba(247,241,231,0.4) 100%)',
+          }}
+        />
+      </div>
 
       <div className="relative z-10 flex flex-col items-center text-center px-6 max-w-3xl mx-auto">
 
@@ -54,7 +96,11 @@ export default function Hero() {
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 1, delay: 0.28 }}
           className="text-7xl sm:text-8xl md:text-[10rem] font-bold tracking-[-0.02em] text-chlo-brown leading-none"
-          style={{ fontFamily: 'var(--font-playfair)' }}
+          style={{
+            fontFamily: 'var(--font-playfair)',
+            textShadow: videoVisible ? '0 1px 20px rgba(247,241,231,0.8)' : 'none',
+            transition: 'text-shadow 2s ease-out',
+          }}
         >
           Chlo
         </motion.h1>
