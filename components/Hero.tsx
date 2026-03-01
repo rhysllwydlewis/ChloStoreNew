@@ -4,28 +4,24 @@ import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
 export default function Hero() {
-  // videoVisible: controls the full-bleed video layer
-  // contentVisible: controls the React text/CTA layer
-  // They cross-fade simultaneously — video text hands off to React text seamlessly
-  const [videoVisible, setVideoVisible] = useState(true);
-  const [contentVisible, setContentVisible] = useState(false);
+  // videoVisible controls the full-bleed video layer only.
+  // Starts hidden — React text stagger animations run first on a clean cream
+  // background. After 400ms the video fades in behind the text. At 5s it fades out.
+  // React content ("Shop Now" / "Our Story") is always visible throughout.
+  const [videoVisible, setVideoVisible] = useState(false);
 
   useEffect(() => {
-    // Respect reduced motion — skip video, show content immediately
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReduced) {
-      setVideoVisible(false);
-      setContentVisible(true);
-      return;
-    }
-    // At 5s: video fades out and React content fades in at the same time.
-    // The video's baked-in text dissolves away as the identical React text appears,
-    // creating a seamless handoff with no visible double-text.
-    const timer = setTimeout(() => {
-      setVideoVisible(false);
-      setContentVisible(true);
-    }, 5000);
-    return () => clearTimeout(timer);
+    if (prefersReduced) return; // video stays hidden; cream background is the fallback
+
+    // Short delay so text renders first, then video glides in behind it
+    const introTimer = setTimeout(() => setVideoVisible(true), 400);
+    // Allow 5s of full visibility (video reaches full opacity at ~1200ms, fades out at 6200ms)
+    const outroTimer = setTimeout(() => setVideoVisible(false), 6200);
+    return () => {
+      clearTimeout(introTimer);
+      clearTimeout(outroTimer);
+    };
   }, []);
 
   const handleShopClick = () => {
@@ -54,7 +50,8 @@ export default function Hero() {
         aria-hidden="true"
         style={{
           opacity: videoVisible ? 1 : 0,
-          transition: 'opacity 2s ease-out',
+          // Quick fade-in (0.8s) so it glides in behind the text; slow fade-out (2s) at 5s
+          transition: videoVisible ? 'opacity 0.8s ease-in' : 'opacity 2s ease-out',
           willChange: 'opacity',
           pointerEvents: 'none',
         }}
@@ -97,16 +94,10 @@ export default function Hero() {
         }}
       />
 
-      {/* React text content — hidden while video plays, fades in as video fades out.
-          The video's own baked-in text carries the visual during the video phase,
-          then dissolves into this layer for a seamless handoff. */}
-      <div
-        className="relative z-10 flex flex-col items-center text-center px-6 max-w-3xl mx-auto"
-        style={{
-          opacity: contentVisible ? 1 : 0,
-          transition: 'opacity 2s ease-out',
-        }}
-      >
+      {/* React text content — always visible, overlaid on the video.
+          Stagger entrance animations play live over the video footage.
+          At 5s the video fades away; the React layer is already in place. */}
+      <div className="relative z-10 flex flex-col items-center text-center px-6 max-w-3xl mx-auto">
         {/* Ornamental mark above headline */}
         <motion.div
           initial={{ opacity: 0, y: -6 }}
@@ -185,34 +176,29 @@ export default function Hero() {
         </motion.div>
       </div>
 
-      {/* Scroll chevron — appears with the content after video fades */}
-      <div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
-        style={{
-          opacity: contentVisible ? 1 : 0,
-          transition: 'opacity 2s ease-out',
-        }}
+      {/* Scroll chevron */}
+      <motion.button
+        type="button"
+        onClick={handleShopClick}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.4 }}
+        transition={{ duration: 1, delay: 1.8 }}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 text-chlo-muted hover:opacity-70 transition-opacity duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-chlo-brown rounded"
+        aria-label="Scroll to explore"
       >
-        <button
-          type="button"
-          onClick={handleShopClick}
-          className="text-chlo-muted opacity-40 hover:opacity-70 transition-opacity duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-chlo-brown rounded"
-          aria-label="Scroll to explore"
-        >
-          <div className="animate-bounce-slow motion-reduce:animate-none">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-5 h-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={1.5}
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-            </svg>
-          </div>
-        </button>
-      </div>
+        <div className="animate-bounce-slow motion-reduce:animate-none">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-5 h-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={1.5}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+      </motion.button>
     </section>
   );
 }
