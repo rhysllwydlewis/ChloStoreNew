@@ -71,7 +71,7 @@ export default function LegalHubContent() {
               >
                 <Link
                   href={card.href}
-                  className="group block p-7 rounded-xl border transition-shadow duration-300 hover:shadow-md"
+                  className="group block p-7 rounded-xl border transition-shadow duration-300 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-chlo-brown focus-visible:ring-offset-2"
                   style={{ borderColor: '#E7D8C6', backgroundColor: '#F7F1E7' }}
                 >
                   <p

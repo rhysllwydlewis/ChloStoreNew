@@ -72,8 +72,7 @@ export default function OgImage() {
               maxWidth: '700px',
             }}
           >
-          Effortless beauty, elevated.
-          </p>
+          Effortless beauty, elevated.</p>
         </div>
 
         {/* Decorative bottom band */}

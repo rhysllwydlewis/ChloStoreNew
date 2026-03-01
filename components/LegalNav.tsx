@@ -31,7 +31,7 @@ export default function LegalNav() {
       <button
         type="button"
         onClick={openContact}
-        className="text-sm text-chlo-brown border border-chlo-brown rounded-full px-5 py-2 hover:bg-chlo-brown hover:text-chlo-surface transition-all duration-200 tracking-wide"
+        className="text-sm text-chlo-brown border border-chlo-brown rounded-full px-5 py-2 hover:bg-chlo-brown hover:text-chlo-surface transition-all duration-200 tracking-wide focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-chlo-brown focus-visible:ring-offset-2"
       >
         Contact
       </button>

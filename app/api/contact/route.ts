@@ -29,6 +29,7 @@ const RATE_LIMIT_WINDOW_MS = 60_000; // 1 minute
 const RATE_LIMIT_MAX = 3; // max submissions per IP per window
 const MESSAGE_MAX_LENGTH = 5000;
 const NAME_MAX_LENGTH = 200;
+const ALLOWED_SUBJECTS = ['General', 'Product', 'Order', 'Wholesale', 'Press', 'Other'];
 
 const rateLimitMap = new Map<string, { count: number; windowStart: number }>();
 
@@ -66,6 +67,12 @@ export async function POST(request: NextRequest) {
 
     const body: ContactFormData = await request.json();
 
+    // Normalise string inputs
+    const name = (body.name ?? '').trim();
+    const email = (body.email ?? '').trim();
+    const subject = (body.subject ?? '').trim();
+    const message = (body.message ?? '').trim();
+
     // Honeypot check – silently succeed so bots think the form worked
     if (body.website) {
       return NextResponse.json(
@@ -74,7 +81,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!body.name || !body.email || !body.subject || !body.message) {
+    if (!name || !email || !subject || !message) {
       return NextResponse.json(
         { error: 'All fields are required' },
         { status: 400 }
@@ -82,15 +89,22 @@ export async function POST(request: NextRequest) {
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(body.email)) {
+    if (!emailRegex.test(email)) {
       return NextResponse.json(
         { error: 'Invalid email format' },
         { status: 400 }
       );
     }
 
+    if (!ALLOWED_SUBJECTS.includes(subject)) {
+      return NextResponse.json(
+        { error: 'Please select a valid subject from the dropdown menu.' },
+        { status: 400 }
+      );
+    }
+
     // Length validation – prevent oversized payloads
-    if (body.name.length > NAME_MAX_LENGTH || body.message.length > MESSAGE_MAX_LENGTH) {
+    if (name.length > NAME_MAX_LENGTH || message.length > MESSAGE_MAX_LENGTH) {
       return NextResponse.json(
         { error: 'Input too long. Please shorten your message.' },
         { status: 400 }
@@ -106,31 +120,31 @@ export async function POST(request: NextRequest) {
       await client.sendEmail({
         From: fromEmail,
         To: toEmail,
-        ReplyTo: body.email,
-        Subject: `[Chlo Contact] ${body.subject} – ${body.name}`,
+        ReplyTo: email,
+        Subject: `[Chlo Contact] ${subject} – ${name}`,
         TextBody: [
-          `Name:    ${body.name}`,
-          `Email:   ${body.email}`,
-          `Subject: ${body.subject}`,
+          `Name:    ${name}`,
+          `Email:   ${email}`,
+          `Subject: ${subject}`,
           '',
-          body.message,
+          message,
         ].join('\n'),
         HtmlBody: `
-          <p><strong>Name:</strong> ${escapeHtml(body.name)}</p>
-          <p><strong>Email:</strong> ${escapeHtml(body.email)}</p>
-          <p><strong>Subject:</strong> ${escapeHtml(body.subject)}</p>
+          <p><strong>Name:</strong> ${escapeHtml(name)}</p>
+          <p><strong>Email:</strong> ${escapeHtml(email)}</p>
+          <p><strong>Subject:</strong> ${escapeHtml(subject)}</p>
           <hr />
-          <p>${escapeHtml(body.message).replace(/\n/g, '<br />')}</p>
+          <p>${escapeHtml(message).replace(/\n/g, '<br />')}</p>
         `,
         MessageStream: 'outbound',
       });
     } else {
       // Fallback: log to server console when Postmark is not configured
       console.log('📧 New Chlo contact form submission (email not sent – Postmark not configured):', {
-        name: body.name,
-        email: body.email,
-        subject: body.subject,
-        message: body.message,
+        name,
+        email,
+        subject,
+        message,
         timestamp: new Date().toISOString(),
       });
     }
