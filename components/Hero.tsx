@@ -1,30 +1,35 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export default function Hero() {
-  // videoVisible controls the full-bleed video layer only.
-  // Starts hidden — React text stagger animations run first on a clean cream
-  // background. After 400ms the video fades in behind the text. At 5s it fades out.
-  // React content ("Shop Now" / "Our Story") is always visible throughout.
-  const [videoVisible, setVideoVisible] = useState(false);
-  const [videoReady, setVideoReady] = useState(false);
-  const [videoFailed, setVideoFailed] = useState(false);
+  // activeVideo: 0 = no video, 1 = video 1 visible, 2 = video 2 visible
+  const [activeVideo, setActiveVideo] = useState<0 | 1 | 2>(0);
+  const [video1Ready, setVideo1Ready] = useState(false);
+  const [video2Ready, setVideo2Ready] = useState(false);
+  const [video1Failed, setVideo1Failed] = useState(false);
+  const [video2Failed, setVideo2Failed] = useState(false);
+
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   useEffect(() => {
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReduced) return; // video stays hidden; cream background is the fallback
+    if (prefersReduced) return; // both videos stay hidden; cream background is the fallback
 
-    // Short delay so text renders first, then video glides in behind it
-    const introTimer = setTimeout(() => setVideoVisible(true), 400);
-    // Allow 5s of full visibility (video reaches full opacity at ~1200ms, fades out at 6200ms)
-    const outroTimer = setTimeout(() => setVideoVisible(false), 6200);
+    timersRef.current.push(setTimeout(() => setActiveVideo(1), 400));
+    timersRef.current.push(setTimeout(() => setActiveVideo(0), 6200));
+    timersRef.current.push(setTimeout(() => setActiveVideo(2), 16200));
+    timersRef.current.push(setTimeout(() => setActiveVideo(0), 22000));
+
     return () => {
-      clearTimeout(introTimer);
-      clearTimeout(outroTimer);
+      timersRef.current.forEach(clearTimeout);
+      timersRef.current = [];
     };
   }, []);
+
+  const video1Visible = activeVideo === 1 && video1Ready && !video1Failed;
+  const video2Visible = activeVideo === 2 && video2Ready && !video2Failed;
 
   const handleShopClick = () => {
     const target = document.querySelector('#shop');
@@ -46,31 +51,77 @@ export default function Hero() {
       style={{ backgroundColor: '#F7F1E7' }}
       aria-label="Hero"
     >
-      {/* Full-bleed video background — fades out at 5s */}
+      {/* Full-bleed video 1 background — fades in at 400ms, fades out at 6.2s */}
       <div
         className="absolute inset-0 z-0"
         aria-hidden="true"
         style={{
-          opacity: videoVisible && videoReady && !videoFailed ? 1 : 0,
-          // Fade in once both the timer has fired AND the video has buffered;
-          // slow fade-out when the timer expires at 6.2s
-          transition: videoVisible && videoReady && !videoFailed ? 'opacity 0.8s ease-in' : 'opacity 2s ease-out',
+          opacity: video1Visible ? 1 : 0,
+          transition: video1Visible ? 'opacity 0.8s ease-in' : 'opacity 2s ease-out',
           willChange: 'opacity',
           pointerEvents: 'none',
         }}
       >
         <video
           autoPlay
-          loop
           muted
           playsInline
           preload="auto"
           className="absolute inset-0 w-full h-full object-cover"
           style={{ opacity: 0.85 }}
-          onCanPlay={() => setVideoReady(true)}
-          onError={() => setVideoFailed(true)}
+          onCanPlay={() => setVideo1Ready(true)}
+          onError={() => setVideo1Failed(true)}
         >
           <source src="/hero-video.mp4" type="video/mp4" />
+        </video>
+
+        {/* Warm colour overlay for palette cohesion — slightly stronger for text contrast */}
+        <div
+          className="absolute inset-0"
+          style={{ backgroundColor: 'rgba(247,241,231,0.28)' }}
+        />
+
+        {/* Centred gradient scrim — brightens the text area without dimming full video */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(ellipse 60% 55% at 50% 50%, rgba(247,241,231,0.35) 0%, rgba(247,241,231,0) 100%)',
+          }}
+        />
+
+        {/* Soft vignette to frame the centre during video phase */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(ellipse 70% 70% at 50% 50%, rgba(247,241,231,0) 0%, rgba(247,241,231,0.5) 100%)',
+          }}
+        />
+      </div>
+
+      {/* Full-bleed video 2 background — fades in at 16.2s, fades out at 22s */}
+      <div
+        className="absolute inset-0 z-0"
+        aria-hidden="true"
+        style={{
+          opacity: video2Visible ? 1 : 0,
+          transition: video2Visible ? 'opacity 0.8s ease-in' : 'opacity 2s ease-out',
+          willChange: 'opacity',
+          pointerEvents: 'none',
+        }}
+      >
+        <video
+          autoPlay
+          muted
+          playsInline
+          preload="auto"
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ opacity: 0.85 }}
+          onCanPlay={() => setVideo2Ready(true)}
+          onError={() => setVideo2Failed(true)}
+        >
+          <source src="/hero-video2.mp4" type="video/mp4" />
         </video>
 
         {/* Warm colour overlay for palette cohesion — slightly stronger for text contrast */}
