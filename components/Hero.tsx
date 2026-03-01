@@ -44,15 +44,16 @@ export default function Hero() {
         style={{
           opacity: videoVisible ? 1 : 0,
           transition: 'opacity 2s ease-out',
+          willChange: 'opacity',
+          pointerEvents: 'none',
         }}
       >
-        {/* poster is an optional fallback image displayed before the video loads */}
         <video
           autoPlay
           loop
           muted
           playsInline
-          poster="/hero-poster.webp"
+          preload="auto"
           className="absolute inset-0 w-full h-full object-cover"
           style={{ opacity: 0.85 }}
         >
@@ -74,6 +75,16 @@ export default function Hero() {
           }}
         />
       </div>
+
+      {/* Permanent bottom blend — fades hero floor into the Store section's matching cream */}
+      <div
+        className="absolute bottom-0 left-0 right-0 z-[5] pointer-events-none"
+        aria-hidden="true"
+        style={{
+          height: '120px',
+          background: 'linear-gradient(to top, #F7F1E7 0%, transparent 100%)',
+        }}
+      />
 
       <div className="relative z-10 flex flex-col items-center text-center px-6 max-w-3xl mx-auto">
 
@@ -98,7 +109,9 @@ export default function Hero() {
           className="text-7xl sm:text-8xl md:text-[10rem] font-bold tracking-[-0.02em] text-chlo-brown leading-none"
           style={{
             fontFamily: 'var(--font-playfair)',
-            textShadow: videoVisible ? '0 1px 20px rgba(247,241,231,0.8)' : 'none',
+            textShadow: videoVisible
+              ? '0 1px 20px rgba(247,241,231,0.8)'
+              : '0 1px 20px rgba(247,241,231,0)',
             transition: 'text-shadow 2s ease-out',
           }}
         >
@@ -165,7 +178,7 @@ export default function Hero() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 0.4 }}
         transition={{ duration: 1, delay: 1.8 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 text-chlo-muted hover:opacity-70 transition-opacity duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-chlo-brown rounded"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 text-chlo-muted hover:opacity-70 transition-opacity duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-chlo-brown rounded"
         aria-label="Scroll to explore"
       >
         <div className="animate-bounce-slow motion-reduce:animate-none">
