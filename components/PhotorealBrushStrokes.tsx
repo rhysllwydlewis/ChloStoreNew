@@ -6,77 +6,107 @@ import React from 'react';
 type Stroke = {
   src: string;
   top: string;
+  translateX: string;
   rotateDeg: number;
   opacity: number;
   scale: number;
-  blurPx: number;
-  animClass: string;
+  driftClass: string;
 };
 
 export default function PhotorealBrushStrokes() {
-  // Real photographed strokes with alpha in /public
   const strokes: Stroke[] = [
-    { src: '/stroke_1.webp', top: '10%', rotateDeg: -7, opacity: 0.62, scale: 1.18, blurPx: 0.15, animClass: 'floatA' },
-    { src: '/stroke_2.webp', top: '38%', rotateDeg:  3, opacity: 0.52, scale: 1.16, blurPx: 0.12, animClass: 'floatB' },
-    { src: '/stroke_3.webp', top: '66%', rotateDeg: -2, opacity: 0.46, scale: 1.14, blurPx: 0.10, animClass: 'floatC' },
+    // Stroke 1 — champagne-gold, shifted slightly left, angled gently up-right
+    { src: '/stroke_1.webp', top: '6%',  translateX: '-52%', rotateDeg: -6,  opacity: 0.82, scale: 1.20, driftClass: 'driftA' },
+    // Stroke 2 — blush-rose, shifted slightly right, gentle counter-tilt
+    { src: '/stroke_2.webp', top: '37%', translateX: '-48%', rotateDeg:  4,  opacity: 0.72, scale: 1.16, driftClass: 'driftB' },
+    // Stroke 3 — warm taupe, shifted left again, subtle angle
+    { src: '/stroke_3.webp', top: '65%', translateX: '-51%', rotateDeg: -2,  opacity: 0.66, scale: 1.14, driftClass: 'driftC' },
   ];
 
   return (
     <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-      {/* Center protection for readability */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(247,241,231,0)_0%,rgba(247,241,231,0.45)_58%,rgba(247,241,231,0.78)_100%)]" />
 
-      {/* Very subtle grain (luxury film texture) */}
-      <div className="absolute inset-0 opacity-[0.05] mix-blend-multiply grain" />
-
+      {/* ── Brush strokes (rendered first, underneath the gradient veil) ── */}
       {strokes.map((s, i) => (
         <div
           key={s.src}
-          className="absolute left-1/2 max-w-none"
+          className="absolute max-w-none"
           style={{
             top: s.top,
-            width: '125vw',
-            transform: `translateX(-50%) rotate(${s.rotateDeg}deg) scale(${s.scale})`,
+            left: '50%',
+            width: '128vw',
+            transform: `translateX(${s.translateX}) rotate(${s.rotateDeg}deg) scale(${s.scale})`,
             opacity: s.opacity,
-            filter: s.blurPx > 0 ? `blur(${s.blurPx}px)` : 'none',
           }}
         >
-          <Image
-            src={s.src}
-            alt=""
-            width={2600}
-            height={1000}
-            priority={i === 0}
-            className={`h-auto w-full select-none ${s.animClass}`}
-          />
+          {/* Separate inner wrapper carries ONLY the floating drift animation */}
+          <div className={`w-full ${s.driftClass}`} style={{ willChange: 'transform' }}>
+            <Image
+              src={s.src}
+              alt=""
+              width={2600}
+              height={900}
+              priority={i === 0}
+              className="h-auto w-full select-none"
+            />
+          </div>
         </div>
       ))}
 
+      {/* ── Gradient veil — sits ON TOP of strokes, protects the text centre ── */}
+      {/* Ellipse is taller than wide so the vertical centre strip is clearest */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            'radial-gradient(ellipse 58% 62% at 50% 50%, ' +
+            'rgba(247,241,231,0.70) 0%, ' +
+            'rgba(247,241,231,0.42) 38%, ' +
+            'rgba(247,241,231,0.14) 65%, ' +
+            'rgba(247,241,231,0.00) 100%)',
+        }}
+      />
+
+      {/* ── Luxury film grain — topmost layer ── */}
+      <div className="absolute inset-0 opacity-[0.045] mix-blend-multiply grain" />
+
       <style jsx>{`
+        /* Fine film grain via SVG turbulence */
         .grain {
-          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)' opacity='.33'/%3E%3C/svg%3E");
-          background-size: 220px 220px;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.72' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)' opacity='.30'/%3E%3C/svg%3E");
+          background-size: 180px 180px;
         }
-        @keyframes floatA {
-          0% { transform: translateX(-50%) rotate(-7deg) scale(1.18) translate3d(0,0,0); }
-          50% { transform: translateX(-50%) rotate(-7deg) scale(1.19) translate3d(-1.0%,0.6%,0); }
-          100% { transform: translateX(-50%) rotate(-7deg) scale(1.18) translate3d(0,0,0); }
+
+        /* Drift animations — only translate3d so they don't fight the outer
+           transform (rotate + scale) set inline on the parent div.          */
+        @keyframes driftA {
+          0%   { transform: translate3d(0,     0,    0); }
+          28%  { transform: translate3d(-0.9%, 0.5%, 0); }
+          55%  { transform: translate3d( 0.4%, 0.8%, 0); }
+          78%  { transform: translate3d(-0.5%, 0.3%, 0); }
+          100% { transform: translate3d(0,     0,    0); }
         }
-        @keyframes floatB {
-          0% { transform: translateX(-50%) rotate(3deg) scale(1.16) translate3d(0,0,0); }
-          50% { transform: translateX(-50%) rotate(3deg) scale(1.17) translate3d(1.0%,-0.5%,0); }
-          100% { transform: translateX(-50%) rotate(3deg) scale(1.16) translate3d(0,0,0); }
+        @keyframes driftB {
+          0%   { transform: translate3d(0,     0,    0); }
+          35%  { transform: translate3d( 0.8%,-0.5%, 0); }
+          60%  { transform: translate3d(-0.4%, 0.7%, 0); }
+          80%  { transform: translate3d( 0.6%,-0.3%, 0); }
+          100% { transform: translate3d(0,     0,    0); }
         }
-        @keyframes floatC {
-          0% { transform: translateX(-50%) rotate(-2deg) scale(1.14) translate3d(0,0,0); }
-          50% { transform: translateX(-50%) rotate(-2deg) scale(1.15) translate3d(-0.8%,-0.4%,0); }
-          100% { transform: translateX(-50%) rotate(-2deg) scale(1.14) translate3d(0,0,0); }
+        @keyframes driftC {
+          0%   { transform: translate3d(0,     0,    0); }
+          32%  { transform: translate3d(-0.7%,-0.4%, 0); }
+          58%  { transform: translate3d( 0.5%, 0.6%, 0); }
+          82%  { transform: translate3d(-0.6%, 0.2%, 0); }
+          100% { transform: translate3d(0,     0,    0); }
         }
-        .floatA { animation: floatA 12s ease-in-out infinite; }
-        .floatB { animation: floatB 14s ease-in-out infinite; }
-        .floatC { animation: floatC 16s ease-in-out infinite; }
+
+        .driftA { animation: driftA 18s ease-in-out infinite; }
+        .driftB { animation: driftB 22s ease-in-out infinite; animation-delay: -6s; }
+        .driftC { animation: driftC 26s ease-in-out infinite; animation-delay: -12s; }
+
         @media (prefers-reduced-motion: reduce) {
-          .floatA, .floatB, .floatC { animation: none !important; }
+          .driftA, .driftB, .driftC { animation: none !important; }
         }
       `}</style>
     </div>
