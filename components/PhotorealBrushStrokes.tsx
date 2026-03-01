@@ -16,11 +16,11 @@ type Stroke = {
 export default function PhotorealBrushStrokes() {
   const strokes: Stroke[] = [
     // Stroke 1 — champagne-gold, shifted slightly left, angled gently up-right
-    { src: '/stroke_1.webp', top: '6%',  translateX: '-52%', rotateDeg: -6,  opacity: 0.70, scale: 1.20, driftClass: 'driftA' },
+    { src: '/stroke_1.webp', top: '6%',  translateX: '-52%', rotateDeg: -6,  opacity: 0.82, scale: 1.20, driftClass: 'driftA' },
     // Stroke 2 — blush-rose, shifted slightly right, gentle counter-tilt
-    { src: '/stroke_2.webp', top: '37%', translateX: '-48%', rotateDeg:  4,  opacity: 0.60, scale: 1.16, driftClass: 'driftB' },
+    { src: '/stroke_2.webp', top: '37%', translateX: '-48%', rotateDeg:  4,  opacity: 0.72, scale: 1.16, driftClass: 'driftB' },
     // Stroke 3 — warm taupe, shifted left again, subtle angle
-    { src: '/stroke_3.webp', top: '65%', translateX: '-51%', rotateDeg: -2,  opacity: 0.54, scale: 1.14, driftClass: 'driftC' },
+    { src: '/stroke_3.webp', top: '65%', translateX: '-51%', rotateDeg: -2,  opacity: 0.66, scale: 1.14, driftClass: 'driftC' },
   ];
 
   return (
@@ -37,11 +37,10 @@ export default function PhotorealBrushStrokes() {
             width: '128vw',
             transform: `translateX(${s.translateX}) rotate(${s.rotateDeg}deg) scale(${s.scale})`,
             opacity: s.opacity,
-            willChange: 'transform',
           }}
         >
           {/* Separate inner wrapper carries ONLY the floating drift animation */}
-          <div className={`w-full ${s.driftClass}`}>
+          <div className={`w-full ${s.driftClass}`} style={{ willChange: 'transform' }}>
             <Image
               src={s.src}
               alt=""
@@ -60,10 +59,10 @@ export default function PhotorealBrushStrokes() {
         className="absolute inset-0"
         style={{
           background:
-            'radial-gradient(ellipse 55% 60% at 50% 50%, ' +
-            'rgba(247,241,231,0.82) 0%, ' +
-            'rgba(247,241,231,0.52) 38%, ' +
-            'rgba(247,241,231,0.18) 65%, ' +
+            'radial-gradient(ellipse 58% 62% at 50% 50%, ' +
+            'rgba(247,241,231,0.70) 0%, ' +
+            'rgba(247,241,231,0.42) 38%, ' +
+            'rgba(247,241,231,0.14) 65%, ' +
             'rgba(247,241,231,0.00) 100%)',
         }}
       />
