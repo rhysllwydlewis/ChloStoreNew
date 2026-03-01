@@ -27,7 +27,7 @@ export default function Hero() {
       {/* Background video layer */}
       <div className="absolute inset-0 z-0" aria-hidden="true">
         <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover" style={{ opacity: 0.3 }}>
-          <source src="/02177239470821000000000000000000000ffffc0a8ac5d5b4f8c%20(1).mp4" type="video/mp4" />
+          <source src="/hero-video.mp4" type="video/mp4" />
         </video>
       </div>
 
