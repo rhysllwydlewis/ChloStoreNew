@@ -1,9 +1,29 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import PhotorealBrushStrokes from './PhotorealBrushStrokes';
+import { useEffect, useState } from 'react';
 
 export default function Hero() {
+  // videoVisible controls the full-bleed video layer only.
+  // Starts hidden — React text stagger animations run first on a clean cream
+  // background. After 400ms the video fades in behind the text. At 5s it fades out.
+  // React content ("Shop Now" / "Our Story") is always visible throughout.
+  const [videoVisible, setVideoVisible] = useState(false);
+
+  useEffect(() => {
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) return; // video stays hidden; cream background is the fallback
+
+    // Short delay so text renders first, then video glides in behind it
+    const introTimer = setTimeout(() => setVideoVisible(true), 400);
+    // Allow 5s of full visibility (video reaches full opacity at ~1200ms, fades out at 6200ms)
+    const outroTimer = setTimeout(() => setVideoVisible(false), 6200);
+    return () => {
+      clearTimeout(introTimer);
+      clearTimeout(outroTimer);
+    };
+  }, []);
+
   const handleShopClick = () => {
     const target = document.querySelector('#shop');
     if (target) {
@@ -24,17 +44,60 @@ export default function Hero() {
       style={{ backgroundColor: '#F7F1E7' }}
       aria-label="Hero"
     >
-      {/* Background video layer */}
-      <div className="absolute inset-0 z-0" aria-hidden="true">
-        <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover" style={{ opacity: 0.3 }}>
+      {/* Full-bleed video background — fades out at 5s */}
+      <div
+        className="absolute inset-0 z-0"
+        aria-hidden="true"
+        style={{
+          opacity: videoVisible ? 1 : 0,
+          // Quick fade-in (0.8s) so it glides in behind the text; slow fade-out (2s) at 5s
+          transition: videoVisible ? 'opacity 0.8s ease-in' : 'opacity 2s ease-out',
+          willChange: 'opacity',
+          pointerEvents: 'none',
+        }}
+      >
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ opacity: 0.85 }}
+        >
           <source src="/hero-video.mp4" type="video/mp4" />
         </video>
+
+        {/* Warm colour overlay for palette cohesion */}
+        <div
+          className="absolute inset-0"
+          style={{ backgroundColor: 'rgba(247,241,231,0.18)' }}
+        />
+
+        {/* Soft vignette to frame the centre during video phase */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(ellipse 70% 70% at 50% 50%, rgba(247,241,231,0) 0%, rgba(247,241,231,0.4) 100%)',
+          }}
+        />
       </div>
 
-      <PhotorealBrushStrokes />
+      {/* Permanent bottom blend — seamless cut into the Store section below */}
+      <div
+        className="absolute bottom-0 left-0 right-0 z-[5] pointer-events-none"
+        aria-hidden="true"
+        style={{
+          height: '120px',
+          background: 'linear-gradient(to top, #F7F1E7 0%, transparent 100%)',
+        }}
+      />
 
+      {/* React text content — always visible, overlaid on the video.
+          Stagger entrance animations play live over the video footage.
+          At 5s the video fades away; the React layer is already in place. */}
       <div className="relative z-10 flex flex-col items-center text-center px-6 max-w-3xl mx-auto">
-
         {/* Ornamental mark above headline */}
         <motion.div
           initial={{ opacity: 0, y: -6 }}
@@ -113,13 +176,14 @@ export default function Hero() {
         </motion.div>
       </div>
 
+      {/* Scroll chevron */}
       <motion.button
         type="button"
         onClick={handleShopClick}
         initial={{ opacity: 0 }}
         animate={{ opacity: 0.4 }}
         transition={{ duration: 1, delay: 1.8 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 text-chlo-muted hover:opacity-70 transition-opacity duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-chlo-brown rounded"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 text-chlo-muted hover:opacity-70 transition-opacity duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-chlo-brown rounded"
         aria-label="Scroll to explore"
       >
         <div className="animate-bounce-slow motion-reduce:animate-none">
