@@ -30,8 +30,8 @@ export default function Hero() {
 
         {/* Ornamental mark above headline */}
         <motion.div
-          initial={{ opacity: 0, scaleX: 0 }}
-          animate={{ opacity: 1, scaleX: 1 }}
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.15, ease: 'easeOut' }}
           className="flex items-center gap-3 mb-6"
         >
@@ -55,9 +55,10 @@ export default function Hero() {
         {/* Thin decorative rule between headline and tagline */}
         <motion.div
           initial={{ scaleX: 0, opacity: 0 }}
-          animate={{ scaleX: 1, opacity: 1 }}
+          animate={{ scaleX: 1, opacity: 0.5 }}
           transition={{ duration: 0.8, delay: 0.55, ease: 'easeOut' }}
-          className="mt-7 h-px w-16 bg-chlo-tan opacity-50"
+          className="mt-7 h-px w-16 bg-chlo-tan"
+          style={{ originX: 0 }}
         />
 
         <motion.p

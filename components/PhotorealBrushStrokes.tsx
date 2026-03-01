@@ -45,7 +45,7 @@ export default function PhotorealBrushStrokes() {
               src={s.src}
               alt=""
               width={2600}
-              height={800}
+              height={900}
               priority={i === 0}
               className="h-auto w-full select-none"
             />
