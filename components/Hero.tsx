@@ -4,16 +4,27 @@ import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
 export default function Hero() {
+  // videoVisible: controls the full-bleed video layer
+  // contentVisible: controls the React text/CTA layer
+  // They cross-fade simultaneously — video text hands off to React text seamlessly
   const [videoVisible, setVideoVisible] = useState(true);
+  const [contentVisible, setContentVisible] = useState(false);
 
   useEffect(() => {
-    // Respect reduced motion preference — skip video immediately
+    // Respect reduced motion — skip video, show content immediately
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReduced) {
       setVideoVisible(false);
+      setContentVisible(true);
       return;
     }
-    const timer = setTimeout(() => setVideoVisible(false), 5000);
+    // At 5s: video fades out and React content fades in at the same time.
+    // The video's baked-in text dissolves away as the identical React text appears,
+    // creating a seamless handoff with no visible double-text.
+    const timer = setTimeout(() => {
+      setVideoVisible(false);
+      setContentVisible(true);
+    }, 5000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -37,7 +48,7 @@ export default function Hero() {
       style={{ backgroundColor: '#F7F1E7' }}
       aria-label="Hero"
     >
-      {/* Full-bleed video background */}
+      {/* Full-bleed video background — fades out at 5s */}
       <div
         className="absolute inset-0 z-0"
         aria-hidden="true"
@@ -60,13 +71,13 @@ export default function Hero() {
           <source src="/hero-video.mp4" type="video/mp4" />
         </video>
 
-        {/* Warm colour overlay for text readability */}
+        {/* Warm colour overlay for palette cohesion */}
         <div
           className="absolute inset-0"
           style={{ backgroundColor: 'rgba(247,241,231,0.18)' }}
         />
 
-        {/* Soft vignette to frame the centre text during video phase */}
+        {/* Soft vignette to frame the centre during video phase */}
         <div
           className="absolute inset-0"
           style={{
@@ -76,7 +87,7 @@ export default function Hero() {
         />
       </div>
 
-      {/* Permanent bottom blend — fades hero floor into the Store section's matching cream */}
+      {/* Permanent bottom blend — seamless cut into the Store section below */}
       <div
         className="absolute bottom-0 left-0 right-0 z-[5] pointer-events-none"
         aria-hidden="true"
@@ -86,8 +97,16 @@ export default function Hero() {
         }}
       />
 
-      <div className="relative z-10 flex flex-col items-center text-center px-6 max-w-3xl mx-auto">
-
+      {/* React text content — hidden while video plays, fades in as video fades out.
+          The video's own baked-in text carries the visual during the video phase,
+          then dissolves into this layer for a seamless handoff. */}
+      <div
+        className="relative z-10 flex flex-col items-center text-center px-6 max-w-3xl mx-auto"
+        style={{
+          opacity: contentVisible ? 1 : 0,
+          transition: 'opacity 2s ease-out',
+        }}
+      >
         {/* Ornamental mark above headline */}
         <motion.div
           initial={{ opacity: 0, y: -6 }}
@@ -107,13 +126,7 @@ export default function Hero() {
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 1, delay: 0.28 }}
           className="text-7xl sm:text-8xl md:text-[10rem] font-bold tracking-[-0.02em] text-chlo-brown leading-none"
-          style={{
-            fontFamily: 'var(--font-playfair)',
-            textShadow: videoVisible
-              ? '0 1px 20px rgba(247,241,231,0.8)'
-              : '0 1px 20px rgba(247,241,231,0)',
-            transition: 'text-shadow 2s ease-out',
-          }}
+          style={{ fontFamily: 'var(--font-playfair)' }}
         >
           Chlo
         </motion.h1>
@@ -172,28 +185,34 @@ export default function Hero() {
         </motion.div>
       </div>
 
-      <motion.button
-        type="button"
-        onClick={handleShopClick}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 0.4 }}
-        transition={{ duration: 1, delay: 1.8 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 text-chlo-muted hover:opacity-70 transition-opacity duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-chlo-brown rounded"
-        aria-label="Scroll to explore"
+      {/* Scroll chevron — appears with the content after video fades */}
+      <div
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
+        style={{
+          opacity: contentVisible ? 1 : 0,
+          transition: 'opacity 2s ease-out',
+        }}
       >
-        <div className="animate-bounce-slow motion-reduce:animate-none">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-5 h-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={1.5}
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-          </svg>
-        </div>
-      </motion.button>
+        <button
+          type="button"
+          onClick={handleShopClick}
+          className="text-chlo-muted opacity-40 hover:opacity-70 transition-opacity duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-chlo-brown rounded"
+          aria-label="Scroll to explore"
+        >
+          <div className="animate-bounce-slow motion-reduce:animate-none">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-5 h-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={1.5}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </button>
+      </div>
     </section>
   );
 }
