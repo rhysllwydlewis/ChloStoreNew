@@ -49,7 +49,7 @@ Copy `.env.local.example` to `.env.local` and fill in your values:
 | Variable | Purpose |
 |---|---|
 | `NEXT_PUBLIC_SITE_URL` | Canonical site URL used in metadata |
-| `POSTMARK_API_KEY` | Postmark server token for contact emails |
+| `POSTMARK_SERVER_TOKEN` | Postmark server token for contact emails |
 | `CONTACT_TO_EMAIL` | Recipient address for contact form submissions |
 | `CONTACT_FROM_EMAIL` | Verified sender address in Postmark |
 

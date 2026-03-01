@@ -9,6 +9,7 @@ export default function Hero() {
   // background. After 400ms the video fades in behind the text. At 5s it fades out.
   // React content ("Shop Now" / "Our Story") is always visible throughout.
   const [videoVisible, setVideoVisible] = useState(false);
+  const [videoReady, setVideoReady] = useState(false);
   const [videoFailed, setVideoFailed] = useState(false);
 
   useEffect(() => {
@@ -50,9 +51,10 @@ export default function Hero() {
         className="absolute inset-0 z-0"
         aria-hidden="true"
         style={{
-          opacity: videoVisible && !videoFailed ? 1 : 0,
-          // Quick fade-in (0.8s) so it glides in behind the text; slow fade-out (2s) at 5s
-          transition: videoVisible ? 'opacity 0.8s ease-in' : 'opacity 2s ease-out',
+          opacity: videoVisible && videoReady && !videoFailed ? 1 : 0,
+          // Fade in once both the timer has fired AND the video has buffered;
+          // slow fade-out when the timer expires at 6.2s
+          transition: videoVisible && videoReady && !videoFailed ? 'opacity 0.8s ease-in' : 'opacity 2s ease-out',
           willChange: 'opacity',
           pointerEvents: 'none',
         }}
@@ -65,6 +67,7 @@ export default function Hero() {
           preload="auto"
           className="absolute inset-0 w-full h-full object-cover"
           style={{ opacity: 0.85 }}
+          onCanPlay={() => setVideoReady(true)}
           onError={() => setVideoFailed(true)}
         >
           <source src="/hero-video.mp4" type="video/mp4" />
