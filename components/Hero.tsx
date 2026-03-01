@@ -27,21 +27,44 @@ export default function Hero() {
       <PhotorealBrushStrokes />
 
       <div className="relative z-10 flex flex-col items-center text-center px-6 max-w-3xl mx-auto">
+
+        {/* Ornamental mark above headline */}
+        <motion.div
+          initial={{ opacity: 0, scaleX: 0 }}
+          animate={{ opacity: 1, scaleX: 1 }}
+          transition={{ duration: 0.9, delay: 0.15, ease: 'easeOut' }}
+          className="flex items-center gap-3 mb-6"
+        >
+          <span className="block h-px w-10 bg-chlo-tan opacity-60" />
+          <span className="text-chlo-tan opacity-70 text-xs tracking-[0.35em] uppercase font-light select-none">
+            Luxury Cosmetics
+          </span>
+          <span className="block h-px w-10 bg-chlo-tan opacity-60" />
+        </motion.div>
+
         <motion.h1
           initial={{ y: 30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 1, delay: 0.25 }}
+          transition={{ duration: 1, delay: 0.28 }}
           className="text-7xl sm:text-8xl md:text-[10rem] font-bold tracking-[-0.02em] text-chlo-brown leading-none"
           style={{ fontFamily: 'var(--font-playfair)' }}
         >
           Chlo
         </motion.h1>
 
+        {/* Thin decorative rule between headline and tagline */}
+        <motion.div
+          initial={{ scaleX: 0, opacity: 0 }}
+          animate={{ scaleX: 1, opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.55, ease: 'easeOut' }}
+          className="mt-7 h-px w-16 bg-chlo-tan opacity-50"
+        />
+
         <motion.p
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.9, delay: 0.55 }}
-          className="text-xl md:text-2xl text-chlo-muted font-light mt-8 tracking-wide"
+          transition={{ duration: 0.9, delay: 0.65 }}
+          className="text-xl md:text-2xl text-chlo-muted font-light mt-6 tracking-wide"
           style={{ fontFamily: 'var(--font-playfair)', fontStyle: 'italic' }}
         >
           Effortless beauty, elevated.
@@ -50,7 +73,7 @@ export default function Hero() {
         <motion.p
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.9, delay: 0.75 }}
+          transition={{ duration: 0.9, delay: 0.82 }}
           className="text-base text-chlo-muted mt-5 max-w-lg leading-relaxed"
         >
           Luxury cosmetics crafted with clean formulas and a passion for confidence.
@@ -60,22 +83,22 @@ export default function Hero() {
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.9, delay: 0.95 }}
+          transition={{ duration: 0.9, delay: 1.02 }}
           className="flex flex-col sm:flex-row gap-4 mt-12"
         >
           <button
             type="button"
             onClick={handleShopClick}
-            className="px-8 py-3.5 rounded-full text-sm font-medium tracking-wide transition-all duration-200 hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-chlo-brown focus-visible:ring-offset-2 focus-visible:ring-offset-chlo-cream"
-            style={{ backgroundColor: '#3B2F2A', color: '#FFFCF7' }}
+            className="px-9 py-3.5 rounded-full text-sm font-medium tracking-widest uppercase transition-all duration-300 hover:scale-[1.03] hover:shadow-md active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-chlo-brown focus-visible:ring-offset-2 focus-visible:ring-offset-chlo-cream"
+            style={{ backgroundColor: '#3B2F2A', color: '#FFFCF7', letterSpacing: '0.12em' }}
           >
             Shop Now
           </button>
           <button
             type="button"
             onClick={handleAboutClick}
-            className="px-8 py-3.5 rounded-full text-sm font-medium tracking-wide border transition-all duration-200 hover:bg-chlo-beige focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-chlo-brown focus-visible:ring-offset-2 focus-visible:ring-offset-chlo-cream"
-            style={{ borderColor: '#3B2F2A', color: '#3B2F2A' }}
+            className="px-9 py-3.5 rounded-full text-sm font-medium tracking-widest uppercase border transition-all duration-300 hover:bg-chlo-beige hover:scale-[1.03] active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-chlo-brown focus-visible:ring-offset-2 focus-visible:ring-offset-chlo-cream"
+            style={{ borderColor: '#3B2F2A', color: '#3B2F2A', letterSpacing: '0.12em' }}
           >
             Our Story
           </button>
