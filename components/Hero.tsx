@@ -68,10 +68,19 @@ export default function Hero() {
           <source src="/hero-video.mp4" type="video/mp4" />
         </video>
 
-        {/* Warm colour overlay for palette cohesion */}
+        {/* Warm colour overlay for palette cohesion — slightly stronger for text contrast */}
         <div
           className="absolute inset-0"
-          style={{ backgroundColor: 'rgba(247,241,231,0.18)' }}
+          style={{ backgroundColor: 'rgba(247,241,231,0.28)' }}
+        />
+
+        {/* Centred gradient scrim — brightens the text area without dimming full video */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(ellipse 60% 55% at 50% 50%, rgba(247,241,231,0.35) 0%, rgba(247,241,231,0) 100%)',
+          }}
         />
 
         {/* Soft vignette to frame the centre during video phase */}
@@ -79,7 +88,7 @@ export default function Hero() {
           className="absolute inset-0"
           style={{
             background:
-              'radial-gradient(ellipse 70% 70% at 50% 50%, rgba(247,241,231,0) 0%, rgba(247,241,231,0.4) 100%)',
+              'radial-gradient(ellipse 70% 70% at 50% 50%, rgba(247,241,231,0) 0%, rgba(247,241,231,0.5) 100%)',
           }}
         />
       </div>
@@ -106,7 +115,10 @@ export default function Hero() {
           className="flex items-center gap-3 mb-6"
         >
           <span className="block h-px w-10 bg-chlo-tan opacity-60" />
-          <span className="text-chlo-tan opacity-70 text-xs tracking-[0.35em] uppercase font-light select-none">
+          <span
+            className="text-chlo-tan opacity-70 text-xs tracking-[0.35em] uppercase font-light select-none"
+            style={{ textShadow: '0 1px 6px rgba(247,241,231,0.9)' }}
+          >
             Luxury Cosmetics
           </span>
           <span className="block h-px w-10 bg-chlo-tan opacity-60" />
@@ -117,7 +129,7 @@ export default function Hero() {
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 1, delay: 0.28 }}
           className="text-7xl sm:text-8xl md:text-[10rem] font-bold tracking-[-0.02em] text-chlo-brown leading-none"
-          style={{ fontFamily: 'var(--font-playfair)' }}
+          style={{ fontFamily: 'var(--font-playfair)', textShadow: '0 2px 24px rgba(247,241,231,0.85), 0 1px 8px rgba(247,241,231,0.6)' }}
         >
           Chlo
         </motion.h1>
@@ -136,7 +148,7 @@ export default function Hero() {
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.9, delay: 0.65 }}
           className="text-xl md:text-2xl text-chlo-muted font-light mt-6 tracking-wide"
-          style={{ fontFamily: 'var(--font-playfair)', fontStyle: 'italic' }}
+          style={{ fontFamily: 'var(--font-playfair)', fontStyle: 'italic', textShadow: '0 1px 12px rgba(247,241,231,0.95)' }}
         >
           Effortless beauty, elevated.
         </motion.p>
@@ -146,6 +158,7 @@ export default function Hero() {
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.9, delay: 0.82 }}
           className="text-base text-chlo-muted mt-5 max-w-lg leading-relaxed"
+          style={{ textShadow: '0 1px 8px rgba(247,241,231,0.9)' }}
         >
           Luxury cosmetics crafted with clean formulas and a passion for confidence.
           Discover beauty that feels as good as it looks.
@@ -156,6 +169,7 @@ export default function Hero() {
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.9, delay: 1.02 }}
           className="flex flex-col sm:flex-row gap-4 mt-12"
+          style={{ filter: 'drop-shadow(0 2px 12px rgba(247,241,231,0.7))' }}
         >
           <button
             type="button"
@@ -169,7 +183,13 @@ export default function Hero() {
             type="button"
             onClick={handleAboutClick}
             className="px-9 py-3.5 rounded-full text-sm font-medium tracking-widest uppercase border transition-all duration-300 hover:bg-chlo-beige hover:scale-[1.03] active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-chlo-brown focus-visible:ring-offset-2 focus-visible:ring-offset-chlo-cream"
-            style={{ borderColor: '#3B2F2A', color: '#3B2F2A', letterSpacing: '0.12em' }}
+            style={{
+              borderColor: '#3B2F2A',
+              color: '#3B2F2A',
+              letterSpacing: '0.12em',
+              backgroundColor: 'rgba(247,241,231,0.55)',
+              backdropFilter: 'blur(4px)',
+            }}
           >
             Our Story
           </button>
