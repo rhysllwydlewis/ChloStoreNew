@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import LiquidBrushStrokeCanvas from './LiquidBrushStrokeCanvas';
 import PhotorealBrushStrokes from './PhotorealBrushStrokes';
 
 export default function Hero() {
