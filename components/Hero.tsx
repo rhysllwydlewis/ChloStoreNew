@@ -10,10 +10,14 @@ export default function Hero() {
   const [video2Ready, setVideo2Ready] = useState(false);
   const [video1Failed, setVideo1Failed] = useState(false);
   const [video2Failed, setVideo2Failed] = useState(false);
+  const [video1FadingOut, setVideo1FadingOut] = useState(false);
+  const [video2FadingOut, setVideo2FadingOut] = useState(false);
 
   const video1Ref = useRef<HTMLVideoElement>(null);
   const video2Ref = useRef<HTMLVideoElement>(null);
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const video1FadeTriggeredRef = useRef(false);
+  const video2FadeTriggeredRef = useRef(false);
 
   useEffect(() => {
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -35,12 +39,16 @@ export default function Hero() {
       const v2 = video2Ref.current;
       if (v2) v2.pause();
       setVideo2Ready(false);
+      setVideo1FadingOut(false);
+      video1FadeTriggeredRef.current = false;
     } else if (activeVideo === 2) {
       const v2 = video2Ref.current;
       if (v2) { v2.currentTime = 0; v2.play().catch((e) => console.warn('[Hero] video2 play() failed:', e)); }
       const v1 = video1Ref.current;
       if (v1) v1.pause();
       setVideo1Ready(false);
+      setVideo2FadingOut(false);
+      video2FadeTriggeredRef.current = false;
     } else {
       if (video1Ref.current) video1Ref.current.pause();
       if (video2Ref.current) video2Ref.current.pause();
@@ -59,8 +67,27 @@ export default function Hero() {
     setActiveVideo(0);
   };
 
-  const video1Visible = activeVideo === 1 && video1Ready && !video1Failed;
-  const video2Visible = activeVideo === 2 && video2Ready && !video2Failed;
+  // Begin fade-out 2 s before each video ends so the transition is well under
+  // way by the time playback reaches the final frame. Refs guard against
+  // redundant setState calls across multiple timeupdate firings.
+  const handleVideo1TimeUpdate = () => {
+    const v = video1Ref.current;
+    if (!video1FadeTriggeredRef.current && v && v.duration && v.currentTime >= v.duration - 2) {
+      video1FadeTriggeredRef.current = true;
+      setVideo1FadingOut(true);
+    }
+  };
+
+  const handleVideo2TimeUpdate = () => {
+    const v = video2Ref.current;
+    if (!video2FadeTriggeredRef.current && v && v.duration && v.currentTime >= v.duration - 2) {
+      video2FadeTriggeredRef.current = true;
+      setVideo2FadingOut(true);
+    }
+  };
+
+  const video1Visible = activeVideo === 1 && video1Ready && !video1Failed && !video1FadingOut;
+  const video2Visible = activeVideo === 2 && video2Ready && !video2Failed && !video2FadingOut;
 
   const handleShopClick = () => {
     const target = document.querySelector('#shop');
@@ -101,6 +128,7 @@ export default function Hero() {
           className="absolute inset-0 w-full h-full object-cover"
           style={{ opacity: 0.85 }}
           onPlaying={() => setVideo1Ready(true)}
+          onTimeUpdate={handleVideo1TimeUpdate}
           onEnded={handleVideo1Ended}
           onError={() => setVideo1Failed(true)}
         >
@@ -151,6 +179,7 @@ export default function Hero() {
           className="absolute inset-0 w-full h-full object-cover"
           style={{ opacity: 0.85 }}
           onPlaying={() => setVideo2Ready(true)}
+          onTimeUpdate={handleVideo2TimeUpdate}
           onEnded={handleVideo2Ended}
           onError={() => setVideo2Failed(true)}
         >

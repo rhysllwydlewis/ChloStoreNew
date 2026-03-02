@@ -225,6 +225,7 @@ function ContactModal({ onClose }: { onClose: () => void }) {
                     id="name"
                     ref={firstInputRef}
                     type="text"
+                    autoComplete="name"
                     placeholder="Your name"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -239,6 +240,7 @@ function ContactModal({ onClose }: { onClose: () => void }) {
                   <input
                     id="email"
                     type="email"
+                    autoComplete="email"
                     placeholder="your@email.com"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
