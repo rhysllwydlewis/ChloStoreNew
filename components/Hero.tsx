@@ -11,6 +11,8 @@ export default function Hero() {
   const [video1Failed, setVideo1Failed] = useState(false);
   const [video2Failed, setVideo2Failed] = useState(false);
 
+  const video1Ref = useRef<HTMLVideoElement>(null);
+  const video2Ref = useRef<HTMLVideoElement>(null);
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   useEffect(() => {
@@ -18,15 +20,44 @@ export default function Hero() {
     if (prefersReduced) return; // both videos stay hidden; cream background is the fallback
 
     timersRef.current.push(setTimeout(() => setActiveVideo(1), 400));
-    timersRef.current.push(setTimeout(() => setActiveVideo(0), 6200));
-    timersRef.current.push(setTimeout(() => setActiveVideo(2), 16200));
-    timersRef.current.push(setTimeout(() => setActiveVideo(0), 22000));
 
     return () => {
       timersRef.current.forEach(clearTimeout);
       timersRef.current = [];
     };
   }, []);
+
+  // Explicitly play/pause and reset videos when the active slot changes
+  useEffect(() => {
+    if (activeVideo === 1) {
+      const v1 = video1Ref.current;
+      if (v1) { v1.currentTime = 0; v1.play().catch((e) => console.warn('[Hero] video1 play() failed:', e)); }
+      const v2 = video2Ref.current;
+      if (v2) v2.pause();
+      setVideo2Ready(false);
+    } else if (activeVideo === 2) {
+      const v2 = video2Ref.current;
+      if (v2) { v2.currentTime = 0; v2.play().catch((e) => console.warn('[Hero] video2 play() failed:', e)); }
+      const v1 = video1Ref.current;
+      if (v1) v1.pause();
+      setVideo1Ready(false);
+    } else {
+      if (video1Ref.current) video1Ref.current.pause();
+      if (video2Ref.current) video2Ref.current.pause();
+      setVideo1Ready(false);
+      setVideo2Ready(false);
+    }
+  }, [activeVideo]);
+
+  const handleVideo1Ended = () => {
+    setActiveVideo(0);
+    // Schedule video 2 ~10 s after video 1 finishes
+    timersRef.current.push(setTimeout(() => setActiveVideo(2), 10000));
+  };
+
+  const handleVideo2Ended = () => {
+    setActiveVideo(0);
+  };
 
   const video1Visible = activeVideo === 1 && video1Ready && !video1Failed;
   const video2Visible = activeVideo === 2 && video2Ready && !video2Failed;
@@ -51,7 +82,7 @@ export default function Hero() {
       style={{ backgroundColor: '#F7F1E7' }}
       aria-label="Hero"
     >
-      {/* Full-bleed video 1 background — fades in at 400ms, fades out at 6.2s */}
+      {/* Full-bleed video 1 background — fades in at 400 ms, fades out when video ends */}
       <div
         className="absolute inset-0 z-0"
         aria-hidden="true"
@@ -63,13 +94,14 @@ export default function Hero() {
         }}
       >
         <video
-          autoPlay
+          ref={video1Ref}
           muted
           playsInline
           preload="auto"
           className="absolute inset-0 w-full h-full object-cover"
           style={{ opacity: 0.85 }}
-          onCanPlay={() => setVideo1Ready(true)}
+          onPlaying={() => setVideo1Ready(true)}
+          onEnded={handleVideo1Ended}
           onError={() => setVideo1Failed(true)}
         >
           <source src="/hero-video.mp4" type="video/mp4" />
@@ -100,7 +132,7 @@ export default function Hero() {
         />
       </div>
 
-      {/* Full-bleed video 2 background — fades in at 16.2s, fades out at 22s */}
+      {/* Full-bleed video 2 background — fades in ~10 s after video 1 ends */}
       <div
         className="absolute inset-0 z-0"
         aria-hidden="true"
@@ -112,13 +144,14 @@ export default function Hero() {
         }}
       >
         <video
-          autoPlay
+          ref={video2Ref}
           muted
           playsInline
           preload="auto"
           className="absolute inset-0 w-full h-full object-cover"
           style={{ opacity: 0.85 }}
-          onCanPlay={() => setVideo2Ready(true)}
+          onPlaying={() => setVideo2Ready(true)}
+          onEnded={handleVideo2Ended}
           onError={() => setVideo2Failed(true)}
         >
           <source src="/hero-video2.mp4" type="video/mp4" />
